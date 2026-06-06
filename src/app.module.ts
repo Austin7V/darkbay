@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuctionsModule } from './auctions/auctions.module';
+import { OffersModule } from './offers/offers.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { AuctionsModule } from './auctions/auctions.module';
       autoLoadEntities: true,
     }),
     AuctionsModule,
+    OffersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
