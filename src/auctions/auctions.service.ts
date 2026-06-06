@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -14,6 +14,16 @@ export class AuctionsService {
 
   findAll(): Promise<Auction[]> {
     return this.auctionsRepository.find();
+  }
+
+  async findOne(id: string): Promise<Auction> {
+    const auction = await this.auctionsRepository.findOne({
+      where: { id },
+    });
+    if (!auction) {
+      throw new NotFoundException('Auction not found');
+    }
+    return auction;
   }
 
   create(createAuctionDto: CreateAuctionDto): Promise<Auction> {
