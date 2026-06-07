@@ -51,4 +51,22 @@ export class OffersService {
 
     return this.offersRepository.save(offer);
   }
+
+  async findAllForAuction(auctionId: string): Promise<Offer[]> {
+    const auction = await this.auctionsRepository.findOne({
+      where: { id: auctionId },
+    });
+
+    if (!auction) {
+      throw new NotFoundException('Auction not found');
+    }
+    return this.offersRepository.find({
+      where: {
+        auction: { id: auctionId },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+  }
 }
