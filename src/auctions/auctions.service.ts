@@ -1,6 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import {
+  FindOptionsWhere,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+} from 'typeorm';
 
 import { CreateAuctionDto } from './dto/create-auction.dto';
 import { Auction } from './entities/auction.entity';
@@ -21,9 +26,32 @@ export class AuctionsService {
 
     const skip = (page - 1) * limit;
 
+    const where: FindOptionsWhere<Auction> = {};
+
+    if (query.status === 'open') {
+      where.endDate = MoreThanOrEqual(new Date());
+    }
+
+    if (query.status === 'closed') {
+      where.endDate = LessThanOrEqual(new Date());
+    }
+
+    if (query.minPrice !== undefined) {
+      where.currentPrice = MoreThanOrEqual(query.minPrice);
+    }
+
+    if (query.maxPrice !== undefined) {
+      where.currentPrice = LessThanOrEqual(query.maxPrice);
+    }
+
     const [auctions, totalItems] = await this.auctionsRepository.findAndCount({
+      where,
       skip,
       take: limit,
+
+      order: {
+        endDate: 'DESC',
+      },
     });
 
     const items = auctions.map((auction) => this.toAuctionResponse(auction));
