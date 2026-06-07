@@ -9,6 +9,7 @@ import { Repository } from 'typeorm';
 import { Auction } from '../auctions/entities/auction.entity';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { Offer } from './entities/offer.entity';
+import { OfferResponseDto } from './dto/offer-response.dto';
 
 @Injectable()
 export class OffersService {
@@ -20,10 +21,19 @@ export class OffersService {
     private readonly auctionsRepository: Repository<Auction>,
   ) {}
 
+  private toOfferResponse(offer: Offer): OfferResponseDto {
+    return {
+      id: offer.id,
+      amount: offer.amount,
+      bidder: offer.bidder,
+      createdAt: offer.createdAt,
+    };
+  }
+
   async create(
     auctionId: string,
     createOfferDto: CreateOfferDto,
-  ): Promise<Offer> {
+  ): Promise<OfferResponseDto> {
     const auction = await this.auctionsRepository.findOne({
       where: { id: auctionId },
     });
@@ -49,10 +59,12 @@ export class OffersService {
 
     await this.auctionsRepository.save(auction);
 
-    return this.offersRepository.save(offer);
+    const savedOffer = await this.offersRepository.save(offer);
+
+    return this.toOfferResponse(savedOffer);
   }
 
-  async findAllForAuction(auctionId: string): Promise<Offer[]> {
+  async findAllForAuction(auctionId: string): Promise<OfferResponseDto[]> {
     const auction = await this.auctionsRepository.findOne({
       where: { id: auctionId },
     });
@@ -60,7 +72,8 @@ export class OffersService {
     if (!auction) {
       throw new NotFoundException('Auction not found');
     }
-    return this.offersRepository.find({
+
+    const offers = await this.offersRepository.find({
       where: {
         auction: { id: auctionId },
       },
@@ -68,5 +81,7 @@ export class OffersService {
         createdAt: 'DESC',
       },
     });
+
+    return offers.map((offer) => this.toOfferResponse(offer));
   }
 }
