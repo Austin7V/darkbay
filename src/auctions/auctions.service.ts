@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { CreateAuctionDto } from './dto/create-auction.dto';
 import { Auction } from './entities/auction.entity';
 import { AuctionResponseDto } from './dto/auction-response.dto';
+import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
 
 @Injectable()
 export class AuctionsService {
@@ -13,11 +14,31 @@ export class AuctionsService {
     private readonly auctionsRepository: Repository<Auction>,
   ) {}
 
-  async findAll(): Promise<AuctionResponseDto[]> {
-    const auctions = await this.auctionsRepository.find();
+  async findAll(query: ListAuctionsQueryDto) {
+    const page = query.page ?? 1;
 
-    // Hier wandeln wir jede Auction Entity in ein Response DTO um.
-    return auctions.map((auction) => this.toAuctionResponse(auction));
+    const limit = query.limit ?? 10;
+
+    const skip = (page - 1) * limit;
+
+    const [auctions, totalItems] = await this.auctionsRepository.findAndCount({
+      skip,
+      take: limit,
+    });
+
+    const items = auctions.map((auction) => this.toAuctionResponse(auction));
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      items,
+      meta: {
+        totalItems,
+        totalPages,
+        currentPage: page,
+        limit,
+      },
+    };
   }
 
   async findOne(id: string): Promise<AuctionResponseDto> {

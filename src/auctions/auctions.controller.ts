@@ -1,15 +1,17 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
 
 import { CreateAuctionDto } from './dto/create-auction.dto';
 import { AuctionsService } from './auctions.service';
+
+import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
 
 @Controller('auctions')
 export class AuctionsController {
   constructor(private readonly auctionsService: AuctionsService) {}
 
   @Get()
-  findAll() {
-    return this.auctionsService.findAll();
+  findAll(@Query() query: ListAuctionsQueryDto) {
+    return this.auctionsService.findAll(query);
   }
 
   @Get(':id')
