@@ -16,23 +16,26 @@ import { AuctionsService } from './auctions.service';
 
 import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Auctions')
 @Controller('auctions')
 export class AuctionsController {
   constructor(private readonly auctionsService: AuctionsService) {}
 
+  @ApiOperation({ summary: 'Get all auctions with pagination and filters' })
   @Get()
   findAll(@Query() query: ListAuctionsQueryDto) {
     return this.auctionsService.findAll(query);
   }
 
+  @ApiOperation({ summary: 'Get one auction by id' })
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.auctionsService.findOne(id);
   }
 
+  @ApiOperation({ summary: 'Create a new auction' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
