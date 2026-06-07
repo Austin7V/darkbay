@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import {
+  Between,
   FindOptionsWhere,
   LessThanOrEqual,
   MoreThanOrEqual,
@@ -36,11 +37,11 @@ export class AuctionsService {
       where.endDate = LessThanOrEqual(new Date());
     }
 
-    if (query.minPrice !== undefined) {
+    if (query.minPrice !== undefined && query.maxPrice !== undefined) {
+      where.currentPrice = Between(query.minPrice, query.maxPrice);
+    } else if (query.minPrice !== undefined) {
       where.currentPrice = MoreThanOrEqual(query.minPrice);
-    }
-
-    if (query.maxPrice !== undefined) {
+    } else if (query.maxPrice !== undefined) {
       where.currentPrice = LessThanOrEqual(query.maxPrice);
     }
 
