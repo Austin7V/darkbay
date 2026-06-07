@@ -10,6 +10,7 @@ import { Auction } from '../auctions/entities/auction.entity';
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { Offer } from './entities/offer.entity';
 import { OfferResponseDto } from './dto/offer-response.dto';
+import { RequestUser } from '../auth/types/request-user.type';
 
 @Injectable()
 export class OffersService {
@@ -33,6 +34,7 @@ export class OffersService {
   async create(
     auctionId: string,
     createOfferDto: CreateOfferDto,
+    currentUser: RequestUser,
   ): Promise<OfferResponseDto> {
     const auction = await this.auctionsRepository.findOne({
       where: { id: auctionId },
@@ -46,12 +48,17 @@ export class OffersService {
       throw new ConflictException('Auction is already closed');
     }
 
+    if (auction.seller === currentUser.username) {
+      throw new ConflictException('You cannot bid on your own auction');
+    }
+
     if (createOfferDto.amount <= auction.currentPrice) {
       throw new ConflictException('Offer must be higher than current price');
     }
 
     const offer = this.offersRepository.create({
-      ...createOfferDto,
+      amount: createOfferDto.amount,
+      bidder: currentUser.username,
       auction,
     });
 
