@@ -20,10 +20,6 @@ export class CreateAuctionDto {
   @Min(1)
   startingPrice!: number;
 
-  @IsString()
-  @IsNotEmpty()
-  seller!: string;
-
   @IsOptional()
   @IsDateString()
   endDate?: Date;

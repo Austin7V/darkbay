@@ -12,6 +12,7 @@ import { CreateAuctionDto } from './dto/create-auction.dto';
 import { Auction } from './entities/auction.entity';
 import { AuctionResponseDto } from './dto/auction-response.dto';
 import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
+import { RequestUser } from '../auth/types/request-user.type';
 
 @Injectable()
 export class AuctionsService {
@@ -84,6 +85,7 @@ export class AuctionsService {
 
   async create(
     createAuctionDto: CreateAuctionDto,
+    currentUser: RequestUser,
   ): Promise<AuctionResponseDto> {
     const endDate =
       createAuctionDto.endDate ??
@@ -91,7 +93,11 @@ export class AuctionsService {
 
     const auction = this.auctionsRepository.create({
       ...createAuctionDto,
+
       currentPrice: createAuctionDto.startingPrice,
+
+      seller: currentUser.username,
+
       endDate,
     });
 

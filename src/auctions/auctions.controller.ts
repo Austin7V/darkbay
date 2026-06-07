@@ -6,7 +6,10 @@ import {
   Post,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
+import { RequestUser } from '../auth/types/request-user.type';
 
 import { CreateAuctionDto } from './dto/create-auction.dto';
 import { AuctionsService } from './auctions.service';
@@ -27,9 +30,13 @@ export class AuctionsController {
   findOne(@Param('id') id: string) {
     return this.auctionsService.findOne(id);
   }
+
   @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createAuctionDto: CreateAuctionDto) {
-    return this.auctionsService.create(createAuctionDto);
+  create(
+    @Body() createAuctionDto: CreateAuctionDto,
+    @Req() request: Request & { user: RequestUser },
+  ) {
+    return this.auctionsService.create(createAuctionDto, request.user);
   }
 }
