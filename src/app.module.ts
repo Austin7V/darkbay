@@ -10,6 +10,9 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type: 'better-sqlite3',
       database: 'darkbay.sqlite',
@@ -20,9 +23,6 @@ import { ConfigModule } from '@nestjs/config';
     OffersModule,
     UsersModule,
     AuthModule,
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
   ],
   controllers: [AppController],
   providers: [AppService],

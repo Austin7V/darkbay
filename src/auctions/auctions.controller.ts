@@ -1,9 +1,18 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { CreateAuctionDto } from './dto/create-auction.dto';
 import { AuctionsService } from './auctions.service';
 
 import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -18,7 +27,7 @@ export class AuctionsController {
   findOne(@Param('id') id: string) {
     return this.auctionsService.findOne(id);
   }
-
+  @UseGuards(JwtAuthGuard)
   @Post()
   create(@Body() createAuctionDto: CreateAuctionDto) {
     return this.auctionsService.create(createAuctionDto);
