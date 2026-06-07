@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 
 import { CreateAuctionDto } from './dto/create-auction.dto';
 import { Auction } from './entities/auction.entity';
+import { AuctionResponseDto } from './dto/auction-response.dto';
 
 @Injectable()
 export class AuctionsService {
@@ -12,21 +13,28 @@ export class AuctionsService {
     private readonly auctionsRepository: Repository<Auction>,
   ) {}
 
-  findAll(): Promise<Auction[]> {
-    return this.auctionsRepository.find();
+  async findAll(): Promise<AuctionResponseDto[]> {
+    const auctions = await this.auctionsRepository.find();
+
+    // Hier wandeln wir jede Auction Entity in ein Response DTO um.
+    return auctions.map((auction) => this.toAuctionResponse(auction));
   }
 
-  async findOne(id: string): Promise<Auction> {
+  async findOne(id: string): Promise<AuctionResponseDto> {
     const auction = await this.auctionsRepository.findOne({
       where: { id },
     });
+
     if (!auction) {
       throw new NotFoundException('Auction not found');
     }
-    return auction;
+
+    return this.toAuctionResponse(auction);
   }
 
-  create(createAuctionDto: CreateAuctionDto): Promise<Auction> {
+  async create(
+    createAuctionDto: CreateAuctionDto,
+  ): Promise<AuctionResponseDto> {
     const endDate =
       createAuctionDto.endDate ??
       new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
@@ -37,6 +45,21 @@ export class AuctionsService {
       endDate,
     });
 
-    return this.auctionsRepository.save(auction);
+    const savedAuction = await this.auctionsRepository.save(auction);
+
+    return this.toAuctionResponse(savedAuction);
+  }
+
+  private toAuctionResponse(auction: Auction): AuctionResponseDto {
+    return {
+      id: auction.id,
+      title: auction.title,
+      description: auction.description,
+      startingPrice: auction.startingPrice,
+      currentPrice: auction.currentPrice,
+      endDate: auction.endDate,
+      seller: auction.seller,
+      createdAt: auction.createdAt,
+    };
   }
 }
