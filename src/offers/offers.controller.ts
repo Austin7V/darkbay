@@ -13,16 +13,21 @@ import { OffersService } from './offers.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Request } from 'express';
 import { RequestUser } from '../auth/types/request-user.type';
+import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
+@ApiTags('Offers')
 @Controller('auctions/:auctionId/offers')
 export class OffersController {
   constructor(private readonly offersService: OffersService) {}
 
+  @ApiOperation({ summary: 'Get all offers for one auction' })
   @Get()
   findAllForAuction(@Param('auctionId') auctionId: string) {
     return this.offersService.findAllForAuction(auctionId);
   }
 
+  @ApiOperation({ summary: 'Place an offer on an auction' })
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
