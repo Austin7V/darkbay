@@ -13,6 +13,7 @@ import { OffersService } from './offers.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Request } from 'express';
 import { RequestUser } from '../auth/types/request-user.type';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auctions/:auctionId/offers')
 export class OffersController {
@@ -23,6 +24,7 @@ export class OffersController {
     return this.offersService.findAllForAuction(auctionId);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
   create(

@@ -16,6 +16,7 @@ import { AuctionsService } from './auctions.service';
 
 import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('auctions')
 export class AuctionsController {
@@ -31,6 +32,7 @@ export class AuctionsController {
     return this.auctionsService.findOne(id);
   }
 
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Post()
   create(
