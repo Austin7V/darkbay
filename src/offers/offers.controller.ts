@@ -1,8 +1,18 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { OffersService } from './offers.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Request } from 'express';
+import { RequestUser } from '../auth/types/request-user.type';
 
 @Controller('auctions/:auctionId/offers')
 export class OffersController {
@@ -17,9 +27,9 @@ export class OffersController {
   @Post()
   create(
     @Param('auctionId') auctionId: string,
-
     @Body() createOfferDto: CreateOfferDto,
+    @Req() request: Request & { user: RequestUser },
   ) {
-    return this.offersService.create(auctionId, createOfferDto);
+    return this.offersService.create(auctionId, createOfferDto, request.user);
   }
 }
