@@ -48,6 +48,10 @@ export class OffersService {
       throw new ConflictException('Auction is already closed');
     }
 
+    if (auction.seller === currentUser.username) {
+      throw new ConflictException('You cannot bid on your own auction');
+    }
+
     if (createOfferDto.amount <= auction.currentPrice) {
       throw new ConflictException('Offer must be higher than current price');
     }
