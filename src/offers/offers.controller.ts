@@ -13,8 +13,9 @@ import { OffersService } from './offers.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Request } from 'express';
 import { RequestUser } from '../auth/types/request-user.type';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Offers')
 @Controller('auctions/:auctionId/offers')
 export class OffersController {
   constructor(private readonly offersService: OffersService) {}

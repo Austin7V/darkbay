@@ -16,8 +16,9 @@ import { AuctionsService } from './auctions.service';
 
 import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Auctions')
 @Controller('auctions')
 export class AuctionsController {
   constructor(private readonly auctionsService: AuctionsService) {}
