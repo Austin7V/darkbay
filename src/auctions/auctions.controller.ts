@@ -15,7 +15,7 @@ import { CreateAuctionDto } from './dto/create-auction.dto';
 import { AuctionsService } from './auctions.service';
 
 import { ListAuctionsQueryDto } from './dto/list-auctions-query.dto';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Auctions')

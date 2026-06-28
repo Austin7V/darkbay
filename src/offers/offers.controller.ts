@@ -10,7 +10,7 @@ import {
 
 import { CreateOfferDto } from './dto/create-offer.dto';
 import { OffersService } from './offers.service';
-import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Request } from 'express';
 import { RequestUser } from '../auth/types/request-user.type';
 import { ApiBearerAuth, ApiTags, ApiOperation } from '@nestjs/swagger';
