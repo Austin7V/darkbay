@@ -28,8 +28,8 @@ async function createServer() {
 export default async function handler(
   request: VercelRequest,
   response: VercelResponse,
-) {
+): Promise<void> {
   const server = await createServer();
 
-  return server(request, response);
+  server(request, response);
 }
