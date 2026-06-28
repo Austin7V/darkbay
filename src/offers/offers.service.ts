@@ -3,28 +3,31 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
-import { Auction } from '../auctions/entities/auction.entity';
-import { CreateOfferDto } from './dto/create-offer.dto';
-import { Offer } from './entities/offer.entity';
-import { OfferResponseDto } from './dto/offer-response.dto';
+import {
+  AUCTION_MODEL_NAME,
+  AuctionDocument,
+} from '../auctions/schemas/auction.schema';
 import { RequestUser } from '../auth/types/request-user.type';
+import { CreateOfferDto } from './dto/create-offer.dto';
+import { OfferResponseDto } from './dto/offer-response.dto';
+import { OFFER_MODEL_NAME, OfferDocument } from './schemas/offer.schema';
 
 @Injectable()
 export class OffersService {
   constructor(
-    @InjectRepository(Offer)
-    private readonly offersRepository: Repository<Offer>,
+    @InjectModel(OFFER_MODEL_NAME)
+    private readonly offerModel: Model<OfferDocument>,
 
-    @InjectRepository(Auction)
-    private readonly auctionsRepository: Repository<Auction>,
+    @InjectModel(AUCTION_MODEL_NAME)
+    private readonly auctionModel: Model<AuctionDocument>,
   ) {}
 
-  private toOfferResponse(offer: Offer): OfferResponseDto {
+  private toOfferResponse(offer: OfferDocument): OfferResponseDto {
     return {
-      id: offer.id,
+      id: offer._id.toString(),
       amount: offer.amount,
       bidder: offer.bidder,
       createdAt: offer.createdAt,
@@ -36,9 +39,7 @@ export class OffersService {
     createOfferDto: CreateOfferDto,
     currentUser: RequestUser,
   ): Promise<OfferResponseDto> {
-    const auction = await this.auctionsRepository.findOne({
-      where: { id: auctionId },
-    });
+    const auction = await this.auctionModel.findById(auctionId).exec();
 
     if (!auction) {
       throw new NotFoundException('Auction not found');
@@ -56,38 +57,30 @@ export class OffersService {
       throw new ConflictException('Offer must be higher than current price');
     }
 
-    const offer = this.offersRepository.create({
-      amount: createOfferDto.amount,
-      bidder: currentUser.username,
-      auction,
-    });
-
     auction.currentPrice = createOfferDto.amount;
 
-    await this.auctionsRepository.save(auction);
+    await auction.save();
 
-    const savedOffer = await this.offersRepository.save(offer);
+    const offer = await this.offerModel.create({
+      amount: createOfferDto.amount,
+      bidder: currentUser.username,
+      auctionId,
+    });
 
-    return this.toOfferResponse(savedOffer);
+    return this.toOfferResponse(offer);
   }
 
   async findAllForAuction(auctionId: string): Promise<OfferResponseDto[]> {
-    const auction = await this.auctionsRepository.findOne({
-      where: { id: auctionId },
-    });
+    const auction = await this.auctionModel.findById(auctionId).exec();
 
     if (!auction) {
       throw new NotFoundException('Auction not found');
     }
 
-    const offers = await this.offersRepository.find({
-      where: {
-        auction: { id: auctionId },
-      },
-      order: {
-        createdAt: 'DESC',
-      },
-    });
+    const offers = await this.offerModel
+      .find({ auctionId })
+      .sort({ createdAt: -1 })
+      .exec();
 
     return offers.map((offer) => this.toOfferResponse(offer));
   }
