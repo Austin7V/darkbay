@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuctionsModule } from './auctions/auctions.module';
@@ -7,18 +6,14 @@ import { OffersModule } from './offers/offers.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
+import { MongooseModule } from '@nestjs/mongoose';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    TypeOrmModule.forRoot({
-      type: 'better-sqlite3',
-      database: 'darkbay.sqlite',
-      synchronize: true,
-      autoLoadEntities: true,
-    }),
+    MongooseModule.forRoot(process.env.MONGODB_URI!),
     AuctionsModule,
     OffersModule,
     UsersModule,
