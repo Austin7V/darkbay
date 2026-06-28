@@ -1,0 +1,19 @@
+import { NestFactory } from '@nestjs/core';
+import { ExpressAdapter } from '@nestjs/platform-express';
+import express from 'express';
+
+import { AppModule } from '../src/app.module';
+
+const server = express();
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+
+  app.enableCors();
+
+  await app.init();
+}
+
+void bootstrap();
+
+export default server;
